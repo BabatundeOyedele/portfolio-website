@@ -91,5 +91,54 @@
         $('html, body').animate({scrollTop: 0}, 1500, 'easeInOutExpo');
         return false;
     });
+
+    // Contact Form Submission
+    const contactForm = document.getElementById('contactForm');
+    const formMessage = document.getElementById('formMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            // Basic validation
+            if (!contactForm.checkValidity()) {
+                e.stopPropagation();
+                contactForm.classList.add('was-validated');
+                return;
+            }
+
+            const formData = new FormData(contactForm);
+            
+            // Show loading state
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            submitBtn.disabled = true;
+            formMessage.className = 'alert d-none mb-4'; // Reset banner
+
+            fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLSe2AC_FfBI4CjdPP37jPlyijlNyOszlgvcxl7EeI75hztESCA/formResponse', {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                formMessage.className = 'alert alert-success mb-4';
+                formMessage.textContent = 'Your message has been sent successfully!';
+                contactForm.reset();
+                contactForm.classList.remove('was-validated');
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+                formMessage.className = 'alert alert-danger mb-4';
+                formMessage.textContent = 'An error occurred while sending your message. Please try again later.';
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                formMessage.classList.remove('d-none');
+            });
+        });
+    }
+
 })(jQuery);
 
